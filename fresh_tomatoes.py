@@ -56,6 +56,30 @@ main_page_head = '''
             top: 0;
             background-color: white;
         }
+        .img-box {
+            position: relative;
+            height: 342px;
+            width: 220px;
+        }
+        .img-description {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(83, 125, 124, 0.6);
+            color: #fff;
+            visibility: hidden;
+            opacity: 0;
+            width: 220px;
+            
+            /* transition effect. not necessary */
+            transition: opacity .2s, visibility .2s;
+        }       
+        .img-box:hover .img-description {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
     <script type="text/javascript" charset="utf-8">
         // Pause the video when the modal is closed
@@ -64,7 +88,7 @@ main_page_head = '''
             // reliable way to ensure the video stops playing in IE
             $("#trailer-video-container").empty();
         });
-        // Start playing the video whenever the trailer modal is opened
+        // Start playing the video whenev    er the trailer modal is opened
         $(document).on('click', '.movie-tile', function (event) {
             var trailerYouTubeId = $(this).attr('data-trailer-youtube-id')
             var sourceUrl = 'http://www.youtube.com/embed/' + trailerYouTubeId + '?autoplay=1&html5=1';
@@ -123,7 +147,10 @@ main_page_content = '''
 # A single movie entry html template
 movie_tile_content = '''
 <div class="col-md-6 col-lg-4 movie-tile text-center" data-trailer-youtube-id="{trailer_youtube_id}" data-toggle="modal" data-target="#trailer">
-    <img src="{poster_image_url}" width="220" height="342">
+    <div class="img-box">
+        <img src="{poster_image_url}" width="220" height="342">
+        <p class="img-description">{movie_storyline}</p>
+    </div>
     <h2>{movie_title}</h2>
 </div>
 '''
@@ -132,8 +159,9 @@ movie_tile_content = '''
 def create_movie_tiles_content(movies):
     # The HTML content for this section of the page
     content = ''
-    for movie in movies:
+    for movie in movies.values():
         # Extract the youtube ID from the url
+        print(movie)
         youtube_id_match = re.search(
             r'(?<=v=)[^&#]+', movie.trailer_youtube_url)
         youtube_id_match = youtube_id_match or re.search(
@@ -144,6 +172,7 @@ def create_movie_tiles_content(movies):
         # Append the tile for the movie with its content filled in
         content += movie_tile_content.format(
             movie_title=movie.title,
+            movie_storyline=movie.storyline,
             poster_image_url=movie.poster_image_url,
             trailer_youtube_id=trailer_youtube_id
         )
